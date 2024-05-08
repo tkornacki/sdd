@@ -1,0 +1,14 @@
+resources:
+  - name: repository
+    type: git
+    source:
+      branch: master
+      uri: https://github.com/tkornacki/sdd.git
+
+jobs:
+  - name: hello-world
+    plan:
+      - get: repository
+        trigger: true
+      - task: hello-world
+        file: repository/scripts/hello_world.py
