@@ -44,6 +44,7 @@ jobs:
             path: python
             args:
               - repository/scripts/deploy_apps.py
+              - -e ci
       - task: run-verification
         config:
           platform: linux
@@ -120,7 +121,7 @@ jobs:
             path: python
             args:
               - repository/scripts/run_verification.py
-  - name: perforamnce-tests
+  - name: performance-tests
     plan:
       - get: repository
         trigger: false
