@@ -1,9 +1,17 @@
-def build_apps(app_list:list[str])->int:
+from get_apps import get_apps
+
+
+def build_apps(app_list: list[str]) -> list[str]:
     print("Building apps...")
+
+    apps_to_deploy = []
     for app in app_list:
         print(f"Building {app}...")
-    # Write all the apps to a file
-    with open("apps.txt", "w") as f:
-        for app in app_list:
-            f.write(app + "\n")
-    return 1
+        apps_to_deploy.append(app)
+
+    return apps_to_deploy
+
+
+if __name__ == "__main__":
+    apps = get_apps()
+    build_apps(apps)
