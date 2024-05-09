@@ -26,7 +26,7 @@ jobs:
           outputs:
             - name: apps
             - name: repository
-  - name: ci-pipeline
+  - name: ci
     plan:
       - get: repository
         trigger: false # TODO: Set this on a timer.
@@ -59,11 +59,11 @@ jobs:
             args:
               - repository/scripts/run_verification.py
             #TODO: Post status message after running the verification script
-  - name: qa-mco-pipeline
+  - name: qa-mco
     plan:
       - get: repository
         trigger: false
-        passed: [ci-pipeline]
+        passed: [build-apps, ci]
       - task: deploy-apps
         config:
           platform: linux
@@ -94,7 +94,7 @@ jobs:
     plan:
       - get: repository
         trigger: false
-        passed: [qa-mco-pipeline]
+        passed: [build-apps, ci]
       - task: deploy-apps
         config:
           platform: linux
@@ -125,7 +125,7 @@ jobs:
     plan:
       - get: repository
         trigger: false
-        passed: [staging]
+        passed: [ci, staging, qa-mco]
       - task: run-performance-tests
         config:
           platform: linux

@@ -31,7 +31,7 @@ def parse_args():
     if args.environment not in VALID_ENVS:
         print(
             f"Invalid environment: {args.environment}"
-            f"Valid environments are: {VALID_ENVS}"
+            f"\nValid environments are: {VALID_ENVS}"
         )
         exit(1)
 
