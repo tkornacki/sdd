@@ -28,37 +28,113 @@ jobs:
             - name: repository
   - name: ci-pipeline
     plan:
-    - get: repository
-      trigger: false # TODO: Set this on a timer.
-    - set_pipeline: ci.yaml
-      file: repository/pipelines/ci.yaml
-    # plan:
-    #   - get: repository
-    #     trigger: false # TODO: Set this on a timer.
-    #   - task: deploy-apps
-    #     config:
-    #       platform: linux
-    #       image_resource:
-    #         type: docker-image
-    #         source:
-    #           repository: python
-    #       inputs:
-    #         - name: repository
-    #       run:
-    #         path: python
-    #         args:
-    #           - repository/scripts/deploy_apps.py
-    #   - task: run-verification
-    #     config:
-    #       platform: linux
-    #       image_resource:
-    #         type: docker-image
-    #         source:
-    #           repository: python
-    #       inputs:
-    #         - name: repository
-    #       run:
-    #         path: python
-    #         args:
-    #           - repository/scripts/run_verification.py
-    #         #TODO: Post status message after running the verification script
+      - get: repository
+        trigger: false # TODO: Set this on a timer.
+        passed: [build-apps]
+      - task: deploy-apps
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+          run:
+            path: python
+            args:
+              - repository/scripts/deploy_apps.py
+      - task: run-verification
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+          run:
+            path: python
+            args:
+              - repository/scripts/run_verification.py
+            #TODO: Post status message after running the verification script
+  - name: qa-mco-pipeline
+    plan:
+      - get: repository
+        trigger: false
+        passed: [ci-pipeline]
+      - task: deploy-apps
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+          run:
+            path: python
+            args:
+              - repository/scripts/deploy_apps.py
+      - task: run-verification
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+          run:
+            path: python
+            args:
+              - repository/scripts/run_verification.py
+  - name: staging
+    plan:
+      - get: repository
+        trigger: false
+        passed: [qa-mco-pipeline]
+      - task: deploy-apps
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+          run:
+            path: python
+            args:
+              - repository/scripts/deploy_apps.py
+      - task: run-verification
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+          run:
+            path: python
+            args:
+              - repository/scripts/run_verification.py
+  - name: perforamnce-tests
+    plan:
+      - get: repository
+        trigger: false
+        passed: [staging]
+      - task: run-performance-tests
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+          run:
+            path: python
+            args:
+              - repository/scripts/run_performance_tests.py
