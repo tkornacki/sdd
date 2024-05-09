@@ -6,26 +6,6 @@ resources:
       uri: https://github.com/tkornacki/sdd.git
 
 jobs:
-  - name: build-apps
-    plan:
-      - get: repository
-        trigger: true
-      - task: build-apps
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: python
-          inputs:
-            - name: repository
-          run:
-            path: python
-            args:
-              - repository/scripts/build_apps.py
-          outputs:
-            - name: apps
-            - name: repository
   - name: ci-pipeline
     plan:
       - get: repository
