@@ -2,13 +2,60 @@ resources:
   - name: repository
     type: git
     source:
-      branch: master
+      branch: main
       uri: https://github.com/tkornacki/sdd.git
 
 jobs:
-  - name: hello-world
+  - name: hello-world-job
     plan:
       - get: repository
         trigger: true
       - task: hello-world
-        file: repository/scripts/hello_world.py
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+          run:
+            path: python
+            args:
+              - repository/scripts/hello_world.py
+  - name: build-and-deploy-apps
+    plan:
+      - get: repository
+        trigger: true
+      - task: build-apps
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+          run:
+            path: python
+            args:
+              - repository/scripts/build_apps.py
+            # The python script will write a list of apps to file, we need that output.
+            outputs:
+              - name: apps
+      - task: deploy-apps
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+          inputs:
+            - name: repository
+            - name: apps
+          # Run the deploy_apps.py script, with the apps input as a list of strings
+          run:
+            path: python
+            args:
+              - repository/scripts/deploy_apps.py
+              - apps/apps.txt
